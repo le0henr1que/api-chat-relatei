@@ -1,4 +1,4 @@
-import { Message } from '@/domain/message/messages';
+import { Message } from '@/domain/entity/message/messages';
 import { IMessageRepository } from './messageRepository';
 
 export class MessageInMemoryRepository implements IMessageRepository {

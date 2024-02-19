@@ -1,4 +1,4 @@
-import { IMessage } from '@/domain/message/IMessage';
+import { IMessage } from '@/domain/entity/message/IMessage';
 
 export class GenerateMessage {
   constructor(private readonly message: IMessage) {
