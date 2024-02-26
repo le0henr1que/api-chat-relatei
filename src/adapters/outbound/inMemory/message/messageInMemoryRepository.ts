@@ -5,6 +5,6 @@ export class MessageInMemoryRepository implements IMessageRepository {
   private messages: Message[] = [];
 
   public async save(message: Message): Promise<void> {
-    this.messages.push(message);
+    this.messages.push(message, message);
   }
 }
