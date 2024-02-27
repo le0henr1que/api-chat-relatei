@@ -20,15 +20,6 @@ const makeTokenValidator = (): TokenValidator => {
   return new TokenValidatorStub();
 };
 
-const makeTokenValidatorWithError = (): TokenValidator => {
-  class TokenValidatorStub implements TokenValidator {
-    isValid(token: string): boolean {
-      throw new Error();
-    }
-  }
-  return new TokenValidatorStub();
-};
-
 const makeSut = (): SutTypes => {
   const tokenValidatorStub = makeTokenValidator();
   const sut = new SendMessageController(tokenValidatorStub);
@@ -84,8 +75,11 @@ describe('SendMessage', () => {
 
 describe('SendMessage', () => {
   test('Should return 500 if token validator throws', () => {
-    const tokenValidatorStub = makeTokenValidatorWithError();
-    const sut = new SendMessageController(tokenValidatorStub);
+    const { sut, tokenValidatorStub } = makeSut();
+
+    jest.spyOn(tokenValidatorStub, 'isValid').mockImplementationOnce(() => {
+      throw new Error();
+    });
 
     const httpRequest = {
       body: {
