@@ -1,8 +1,10 @@
 import { SendMessageController } from '../../../src/presentation/controllers/send-message';
-import { MissingParamError } from '../../../src/presentation/errors/missing-params-error';
-import { InvalidToken } from '../../../src/presentation/errors/invalid-token-error';
 import { TokenValidator } from '../protocols/token-validator';
-import { ServerError } from '../../../src/presentation/errors/server-error';
+import {
+  ServerError,
+  MissingParamError,
+  InvalidToken,
+} from '../../../src/presentation/errors';
 
 interface SutTypes {
   sut: SendMessageController;

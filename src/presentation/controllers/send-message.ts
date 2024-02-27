@@ -1,9 +1,11 @@
-import { MissingParamError } from '../errors/missing-params-error';
-import { HttpRequest, HttpResponse } from '../protocols/http';
 import { badRequest, serverError } from '../helpers/http-helper';
-import { Controller } from '../protocols/controller';
-import { TokenValidator } from '../protocols/token-validator';
-import { InvalidToken } from '../errors/invalid-token-error';
+import {
+  TokenValidator,
+  Controller,
+  HttpRequest,
+  HttpResponse,
+} from '../protocols';
+import { InvalidToken, MissingParamError } from '../errors';
 
 export class SendMessageController implements Controller {
   private readonly tokenValidator: TokenValidator;
