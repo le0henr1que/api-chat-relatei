@@ -9,7 +9,7 @@
     "start": "node --trace-warnings ./dist/infrastructure/server/server.js",
     "lint": "eslint '*/**/*.{ts,tsx}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix",
-    "test": "jest --passWithNoTests",
+    "test": "jest --passWithNoTests --watch",
     "test:staged": "jest --passWithNoTests"
   },
   "_moduleAliases": {
