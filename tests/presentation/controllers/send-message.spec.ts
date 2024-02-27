@@ -20,6 +20,15 @@ const makeTokenValidator = (): TokenValidator => {
   return new TokenValidatorStub();
 };
 
+// const sendMessageStub = (): TokenValidator => {
+//   class TokenValidatorStub implements TokenValidator {
+//     send(token: string): boolean {
+//       return true;
+//     }
+//   }
+//   return new TokenValidatorStub();
+// };
+
 const makeSut = (): SutTypes => {
   const tokenValidatorStub = makeTokenValidator();
   const sut = new SendMessageController(tokenValidatorStub);
@@ -90,5 +99,19 @@ describe('SendMessage', () => {
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
+  });
+});
+
+describe('SendMessage', () => {
+  test('Should call sendMessage with correct values', () => {
+    // const { sut, sendMessageStub } = makeSut();
+    // const sendSpy = jest.spyOn(sendMessageStub, 'send');
+    // const httpRequest = {
+    //   body: {
+    //     message: 'any_message',
+    //   },
+    // };
+    // sut.handle(httpRequest);
+    // expect(sendSpy).toHaveBeenCalledWith({});
   });
 });
