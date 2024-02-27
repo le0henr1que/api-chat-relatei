@@ -11,13 +11,26 @@ interface SutTypes {
   tokenValidatorStub: TokenValidator;
 }
 
-const makeSut = (): SutTypes => {
+const makeTokenValidator = (): TokenValidator => {
   class TokenValidatorStub implements TokenValidator {
     isValid(token: string): boolean {
       return true;
     }
   }
-  const tokenValidatorStub = new TokenValidatorStub();
+  return new TokenValidatorStub();
+};
+
+const makeTokenValidatorWithError = (): TokenValidator => {
+  class TokenValidatorStub implements TokenValidator {
+    isValid(token: string): boolean {
+      throw new Error();
+    }
+  }
+  return new TokenValidatorStub();
+};
+
+const makeSut = (): SutTypes => {
+  const tokenValidatorStub = makeTokenValidator();
   const sut = new SendMessageController(tokenValidatorStub);
   return {
     sut,
@@ -71,13 +84,7 @@ describe('SendMessage', () => {
 
 describe('SendMessage', () => {
   test('Should return 500 if token validator throws', () => {
-    class TokenValidatorStub implements TokenValidator {
-      isValid(token: string): boolean {
-        throw new Error();
-      }
-    }
-
-    const tokenValidatorStub = new TokenValidatorStub();
+    const tokenValidatorStub = makeTokenValidatorWithError();
     const sut = new SendMessageController(tokenValidatorStub);
 
     const httpRequest = {
