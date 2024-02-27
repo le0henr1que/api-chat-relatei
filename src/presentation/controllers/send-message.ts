@@ -1,10 +1,9 @@
 import { MissingParamError } from '../errors/missing-params-error';
 import { HttpRequest, HttpResponse } from '../protocols/http';
-import { badRequest } from '../helpers/http-helper';
+import { badRequest, serverError } from '../helpers/http-helper';
 import { Controller } from '../protocols/controller';
 import { TokenValidator } from '../protocols/token-validator';
 import { InvalidToken } from '../errors/invalid-token-error';
-import { ServerError } from '../errors/server-error';
 
 export class SendMessageController implements Controller {
   private readonly tokenValidator: TokenValidator;
@@ -25,10 +24,7 @@ export class SendMessageController implements Controller {
         return badRequest(new InvalidToken('token'));
       }
     } catch (error) {
-      return {
-        statusCode: 500,
-        body: new ServerError(),
-      };
+      return serverError();
     }
   }
 }
