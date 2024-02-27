@@ -1,4 +1,4 @@
-import { SendMessageController } from '../../../src/presentation/controllers/send-message-controller';
+import { SendMessageController } from '../../../src/presentation/controllers/send-message';
 import { MissingParamError } from '../../../src/presentation/errors/missing-params-error';
 import { InvalidToken } from '../../../src/presentation/errors/invalid-token-error';
 import { TokenValidator } from '../protocols/token-validator';
@@ -48,5 +48,20 @@ describe('SendMessage', () => {
 
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new InvalidToken('token'));
+  });
+});
+
+describe('SendMessage', () => {
+  test('Should call tokenValidator with correct token', () => {
+    const { sut, tokenValidatorStub } = makeSut();
+    const isValidSpy = jest.spyOn(tokenValidatorStub, 'isValid');
+
+    const httpRequest = {
+      body: {
+        message: 'any_message',
+      },
+    };
+    sut.handle(httpRequest);
+    expect(isValidSpy).toHaveBeenCalledWith('any_message');
   });
 });
