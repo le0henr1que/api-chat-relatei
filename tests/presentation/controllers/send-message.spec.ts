@@ -2,6 +2,7 @@ import { SendMessageController } from '../../../src/presentation/controllers/sen
 import { MissingParamError } from '../../../src/presentation/errors/missing-params-error';
 import { InvalidToken } from '../../../src/presentation/errors/invalid-token-error';
 import { TokenValidator } from '../protocols/token-validator';
+import { ServerError } from '../../../src/presentation/errors/server-error';
 
 interface SutTypes {
   sut: SendMessageController;
@@ -63,5 +64,28 @@ describe('SendMessage', () => {
     };
     sut.handle(httpRequest);
     expect(isValidSpy).toHaveBeenCalledWith('any_message');
+  });
+});
+
+describe('SendMessage', () => {
+  test('Should return 500 if token validator throws', () => {
+    class TokenValidatorStub implements TokenValidator {
+      isValid(token: string): boolean {
+        throw new Error();
+      }
+    }
+
+    const tokenValidatorStub = new TokenValidatorStub();
+    const sut = new SendMessageController(tokenValidatorStub);
+
+    const httpRequest = {
+      body: {
+        message: 'any_message',
+      },
+    };
+    const httpResponse = sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new ServerError());
   });
 });
