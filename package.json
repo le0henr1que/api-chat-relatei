@@ -10,18 +10,8 @@
     "lint": "eslint '*/**/*.{ts,tsx}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix",
     "test": "jest --passWithNoTests --watch",
-    "test:staged": "jest --passWithNoTests"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "git add"
-    ]
+    "test:staged": "jest --passWithNoTests",
+    "prepare": "husky"
   },
   "_moduleAliases": {
     "@": "./src"
