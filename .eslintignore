@@ -4,3 +4,5 @@ coverage
 ./data
 requirements
 .vscode
+jest-unit-config
+jest-integration-config
