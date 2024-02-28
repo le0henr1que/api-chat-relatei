@@ -24,7 +24,7 @@ const makeEncrypter = (): any => {
 const makeSendMessageRepository = (): SendMessageRepository => {
   class SendMessageRepositoryStub implements SendMessageRepository {
     send(message: SendMessageModel): Promise<MessageModel> {
-      const fakeMessage = { message: 'hashed_message' };
+      const fakeMessage = { message: 'valid_message' };
       return new Promise((resolve) => resolve(fakeMessage));
     }
   }
@@ -73,5 +73,11 @@ describe('DbSendMessage', () => {
     const message = { message: 'valid_message' };
     const primise = sut.send(message);
     expect(primise).rejects.toThrow();
+  });
+  test('Should return an message on success', async () => {
+    const { sut } = makeSut();
+    const messageData = { message: 'valid_message' };
+    const message = await sut.send(messageData);
+    expect(message).toEqual(messageData);
   });
 });

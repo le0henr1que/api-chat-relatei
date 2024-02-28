@@ -19,7 +19,9 @@ export class DbSendMessage implements SendMessage {
 
   async send({ message }: SendMessageModel): Promise<MessageModel> {
     const hashedMessage = await this.encrypter.encrypt(message);
-    await this.sendMessageRepository.send({ message: hashedMessage });
-    return { message: hashedMessage };
+    const messageResponse = await this.sendMessageRepository.send({
+      message: hashedMessage,
+    });
+    return messageResponse;
   }
 }
