@@ -129,3 +129,23 @@ describe('SendMessage', () => {
     });
   });
 });
+
+describe('SendMessage', () => {
+  test('Should return 500 if sendMessage throws', () => {
+    const { sut, sendMessageStub } = makeSut();
+
+    jest.spyOn(sendMessageStub, 'send').mockImplementationOnce(() => {
+      throw new Error();
+    });
+
+    const httpRequest = {
+      body: {
+        message: 'any_message',
+      },
+    };
+    const httpResponse = sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new ServerError());
+  });
+});
