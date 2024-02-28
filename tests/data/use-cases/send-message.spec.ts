@@ -1,6 +1,5 @@
 import { DbSendMessage } from '@/data/use-cases/db-send-message';
-import { Encrypter } from '../protocols/encript';
-import { mock } from 'node:test';
+import { Encrypter } from '@/data/use-cases/db-send-message-protocols';
 
 interface sutTypes {
   sut: DbSendMessage;
@@ -29,6 +28,15 @@ describe('DbSendMessage', () => {
     const message = { message: 'valid_message' };
     await sut.send(message);
     expect(encryptSpy).toHaveBeenCalledWith('valid_message');
+  });
+  test('Should throw if Encrypter throws', async () => {
+    const { sut, encrypterStub } = makeSut();
+    jest
+      .spyOn(encrypterStub, 'encrypt')
+      .mockImplementationOnce(() => Promise.reject(new Error()));
+    const message = { message: 'valid_message' };
+    const primise = sut.send(message);
+    expect(primise).rejects.toThrow();
   });
   test('Should throw if Encrypter throws', async () => {
     const { sut, encrypterStub } = makeSut();

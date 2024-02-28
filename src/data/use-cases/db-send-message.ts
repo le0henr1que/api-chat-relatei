@@ -1,9 +1,9 @@
-import { MessageModel } from '@/domain/models/message';
 import {
+  MessageModel,
   SendMessage,
   SendMessageModel,
-} from '../../domain/use-cases/send-message';
-import { Encrypter } from '@/data/protocols/encript';
+  Encrypter,
+} from './db-send-message-protocols';
 
 export class DbSendMessage implements SendMessage {
   private readonly encrypter: Encrypter;
