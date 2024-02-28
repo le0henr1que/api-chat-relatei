@@ -65,4 +65,13 @@ describe('DbSendMessage', () => {
       message: 'hashed_message',
     });
   });
+  test('Should throw if messageRepository throws', async () => {
+    const { sut, sendMessageRepositoryStub } = makeSut();
+    jest
+      .spyOn(sendMessageRepositoryStub, 'send')
+      .mockImplementationOnce(() => Promise.reject(new Error()));
+    const message = { message: 'valid_message' };
+    const primise = sut.send(message);
+    expect(primise).rejects.toThrow();
+  });
 });
