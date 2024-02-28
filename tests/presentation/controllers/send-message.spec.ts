@@ -5,11 +5,8 @@ import {
   MissingParamError,
   InvalidToken,
 } from '../../../src/presentation/errors';
-
-interface SutTypes {
-  sut: SendMessageController;
-  tokenValidatorStub: TokenValidator;
-}
+import { SendMessage, SendMessageModel } from '@/domain/use-cases/send-message';
+import { MessageModel } from '@/domain/models/message';
 
 const makeTokenValidator = (): TokenValidator => {
   class TokenValidatorStub implements TokenValidator {
@@ -20,21 +17,33 @@ const makeTokenValidator = (): TokenValidator => {
   return new TokenValidatorStub();
 };
 
-// const sendMessageStub = (): TokenValidator => {
-//   class TokenValidatorStub implements TokenValidator {
-//     send(token: string): boolean {
-//       return true;
-//     }
-//   }
-//   return new TokenValidatorStub();
-// };
+const makeSendMessageStub = (): SendMessage => {
+  class SendMessageStub implements SendMessage {
+    send(message: SendMessageModel): MessageModel {
+      const fakeMessage = {
+        id: 'valid_id',
+        message: 'valid_message',
+      };
+      return fakeMessage;
+    }
+  }
+  return new SendMessageStub();
+};
+
+interface SutTypes {
+  sut: SendMessageController;
+  tokenValidatorStub: TokenValidator;
+  sendMessageStub: SendMessage;
+}
 
 const makeSut = (): SutTypes => {
   const tokenValidatorStub = makeTokenValidator();
-  const sut = new SendMessageController(tokenValidatorStub);
+  const sendMessageStub = makeSendMessageStub();
+  const sut = new SendMessageController(tokenValidatorStub, sendMessageStub);
   return {
     sut,
     tokenValidatorStub,
+    sendMessageStub,
   };
 };
 
@@ -104,14 +113,16 @@ describe('SendMessage', () => {
 
 describe('SendMessage', () => {
   test('Should call sendMessage with correct values', () => {
-    // const { sut, sendMessageStub } = makeSut();
-    // const sendSpy = jest.spyOn(sendMessageStub, 'send');
-    // const httpRequest = {
-    //   body: {
-    //     message: 'any_message',
-    //   },
-    // };
-    // sut.handle(httpRequest);
-    // expect(sendSpy).toHaveBeenCalledWith({});
+    const { sut, sendMessageStub } = makeSut();
+    const sendSpy = jest.spyOn(sendMessageStub, 'send');
+    const httpRequest = {
+      body: {
+        message: 'any_message',
+      },
+    };
+    sut.handle(httpRequest);
+    expect(sendSpy).toHaveBeenCalledWith({
+      message: 'any_message',
+    });
   });
 });
