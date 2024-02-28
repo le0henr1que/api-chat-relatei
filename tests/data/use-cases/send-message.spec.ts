@@ -1,9 +1,15 @@
 import { DbSendMessage } from '@/data/use-cases/db-send-message';
-import { Encrypter } from '@/data/use-cases/db-send-message-protocols';
+import {
+  Encrypter,
+  MessageModel,
+  SendMessageModel,
+  SendMessageRepository,
+} from '@/data/use-cases/db-send-message-protocols';
 
 interface sutTypes {
   sut: DbSendMessage;
-  encrypterStub: any;
+  encrypterStub: Encrypter;
+  sendMessageRepositoryStub: SendMessageRepository;
 }
 
 const makeEncrypter = (): any => {
@@ -15,10 +21,21 @@ const makeEncrypter = (): any => {
   return new EncrypterStub();
 };
 
+const makeSendMessageRepository = (): SendMessageRepository => {
+  class SendMessageRepositoryStub implements SendMessageRepository {
+    send(message: SendMessageModel): Promise<MessageModel> {
+      const fakeMessage = { message: 'hashed_message' };
+      return new Promise((resolve) => resolve(fakeMessage));
+    }
+  }
+  return new SendMessageRepositoryStub();
+};
+
 const makeSut = (): sutTypes => {
+  const sendMessageRepositoryStub = makeSendMessageRepository();
   const encrypterStub = makeEncrypter();
-  const sut = new DbSendMessage(encrypterStub);
-  return { sut, encrypterStub };
+  const sut = new DbSendMessage(encrypterStub, sendMessageRepositoryStub);
+  return { sut, encrypterStub, sendMessageRepositoryStub };
 };
 
 describe('DbSendMessage', () => {
@@ -38,13 +55,14 @@ describe('DbSendMessage', () => {
     const primise = sut.send(message);
     expect(primise).rejects.toThrow();
   });
-  test('Should throw if Encrypter throws', async () => {
-    const { sut, encrypterStub } = makeSut();
-    jest
-      .spyOn(encrypterStub, 'encrypt')
-      .mockImplementationOnce(() => Promise.reject(new Error()));
+  test('Should call SendMessageRepository with correct values', async () => {
+    const { sut, sendMessageRepositoryStub } = makeSut();
+    const sendSpy = jest.spyOn(sendMessageRepositoryStub, 'send');
+
     const message = { message: 'valid_message' };
-    const primise = sut.send(message);
-    expect(primise).rejects.toThrow();
+    await sut.send(message);
+    expect(sendSpy).toHaveBeenCalledWith({
+      message: 'hashed_message',
+    });
   });
 });

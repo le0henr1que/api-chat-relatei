@@ -26,7 +26,7 @@ const makeSendMessageStub = (): SendMessage => {
   class SendMessageStub implements SendMessage {
     async send(message: SendMessageModel): Promise<MessageModel> {
       const fakeMessage = {
-        responseMessage: 'valid_responseMessage',
+        message: 'valid_message',
       };
       return new Promise((resolve) => resolve(fakeMessage));
     }
@@ -146,7 +146,7 @@ describe('SendMessage', () => {
 
     expect(httpResponse.statusCode).toBe(200);
     expect(httpResponse.body).toEqual({
-      responseMessage: 'valid_responseMessage',
+      message: 'valid_message',
     });
   });
 });
