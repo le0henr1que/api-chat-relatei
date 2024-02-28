@@ -1,13 +1,12 @@
-import { badRequest, serverError } from '../helpers/http-helper';
+import { badRequest, serverError } from '../../helpers/http-helper';
 import {
   TokenValidator,
   Controller,
   HttpRequest,
   HttpResponse,
-} from '../protocols';
-import { InvalidToken, MissingParamError } from '../errors';
-import { Send } from 'express';
-import { SendMessage } from '@/domain/use-cases/send-message';
+  SendMessage,
+} from './send-message-protocols';
+import { InvalidToken, MissingParamError } from '../../errors';
 
 export class SendMessageController implements Controller {
   private readonly tokenValidator: TokenValidator;

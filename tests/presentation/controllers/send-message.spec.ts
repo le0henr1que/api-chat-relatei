@@ -1,12 +1,15 @@
-import { SendMessageController } from '../../../src/presentation/controllers/send-message';
-import { TokenValidator } from '../protocols/token-validator';
+import { SendMessageController } from '@/presentation/controllers/send-message/send-message';
+import {
+  TokenValidator,
+  MessageModel,
+  SendMessageModel,
+  SendMessage,
+} from '../controllers/send-message/send-message-protocols';
 import {
   ServerError,
   MissingParamError,
   InvalidToken,
 } from '../../../src/presentation/errors';
-import { SendMessage, SendMessageModel } from '@/domain/use-cases/send-message';
-import { MessageModel } from '@/domain/models/message';
 
 const makeTokenValidator = (): TokenValidator => {
   class TokenValidatorStub implements TokenValidator {
