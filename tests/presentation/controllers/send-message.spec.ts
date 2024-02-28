@@ -10,6 +10,7 @@ import {
   MissingParamError,
   InvalidToken,
 } from '../../../src/presentation/errors';
+import { response } from 'express';
 
 const makeTokenValidator = (): TokenValidator => {
   class TokenValidatorStub implements TokenValidator {
@@ -24,8 +25,7 @@ const makeSendMessageStub = (): SendMessage => {
   class SendMessageStub implements SendMessage {
     send(message: SendMessageModel): MessageModel {
       const fakeMessage = {
-        id: 'valid_id',
-        message: 'valid_message',
+        responseMessage: 'valid_responseMessage',
       };
       return fakeMessage;
     }
@@ -60,9 +60,6 @@ describe('SendMessage', () => {
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamError('message'));
   });
-});
-
-describe('SendMessage', () => {
   test('Should return 400 if token message length is invalid', () => {
     const { sut, tokenValidatorStub } = makeSut();
     jest.spyOn(tokenValidatorStub, 'isValid').mockReturnValueOnce(false);
@@ -77,9 +74,6 @@ describe('SendMessage', () => {
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new InvalidToken('token'));
   });
-});
-
-describe('SendMessage', () => {
   test('Should call tokenValidator with correct token', () => {
     const { sut, tokenValidatorStub } = makeSut();
     const isValidSpy = jest.spyOn(tokenValidatorStub, 'isValid');
@@ -92,9 +86,6 @@ describe('SendMessage', () => {
     sut.handle(httpRequest);
     expect(isValidSpy).toHaveBeenCalledWith('any_message');
   });
-});
-
-describe('SendMessage', () => {
   test('Should return 500 if token validator throws', () => {
     const { sut, tokenValidatorStub } = makeSut();
 
@@ -112,9 +103,6 @@ describe('SendMessage', () => {
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
   });
-});
-
-describe('SendMessage', () => {
   test('Should call sendMessage with correct values', () => {
     const { sut, sendMessageStub } = makeSut();
     const sendSpy = jest.spyOn(sendMessageStub, 'send');
@@ -128,9 +116,6 @@ describe('SendMessage', () => {
       message: 'any_message',
     });
   });
-});
-
-describe('SendMessage', () => {
   test('Should return 500 if sendMessage throws', () => {
     const { sut, sendMessageStub } = makeSut();
 
@@ -147,5 +132,20 @@ describe('SendMessage', () => {
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
+  });
+  test('Should return 200 if valid data is provided', () => {
+    const { sut } = makeSut();
+
+    const httpRequest = {
+      body: {
+        message: 'valid_token',
+      },
+    };
+    const httpResponse = sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(200);
+    expect(httpResponse.body).toEqual({
+      responseMessage: 'valid_responseMessage',
+    });
   });
 });
