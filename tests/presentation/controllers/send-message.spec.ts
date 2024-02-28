@@ -11,6 +11,7 @@ import {
   InvalidToken,
 } from '../../../src/presentation/errors';
 import { response } from 'express';
+import { resolve } from 'path';
 
 const makeTokenValidator = (): TokenValidator => {
   class TokenValidatorStub implements TokenValidator {
@@ -23,11 +24,11 @@ const makeTokenValidator = (): TokenValidator => {
 
 const makeSendMessageStub = (): SendMessage => {
   class SendMessageStub implements SendMessage {
-    send(message: SendMessageModel): MessageModel {
+    async send(message: SendMessageModel): Promise<MessageModel> {
       const fakeMessage = {
         responseMessage: 'valid_responseMessage',
       };
-      return fakeMessage;
+      return new Promise((resolve) => resolve(fakeMessage));
     }
   }
   return new SendMessageStub();
@@ -51,16 +52,16 @@ const makeSut = (): SutTypes => {
 };
 
 describe('SendMessage', () => {
-  test('Should return 400 if no message is provided', () => {
+  test('Should return 400 if no message is provided', async () => {
     const { sut } = makeSut();
     const httpRequest = {
       body: {},
     };
-    const httpResponse = sut.handle(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamError('message'));
   });
-  test('Should return 400 if token message length is invalid', () => {
+  test('Should return 400 if token message length is invalid', async () => {
     const { sut, tokenValidatorStub } = makeSut();
     jest.spyOn(tokenValidatorStub, 'isValid').mockReturnValueOnce(false);
 
@@ -69,12 +70,12 @@ describe('SendMessage', () => {
         message: 'invalid_token',
       },
     };
-    const httpResponse = sut.handle(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new InvalidToken('token'));
   });
-  test('Should call tokenValidator with correct token', () => {
+  test('Should call tokenValidator with correct token', async () => {
     const { sut, tokenValidatorStub } = makeSut();
     const isValidSpy = jest.spyOn(tokenValidatorStub, 'isValid');
 
@@ -83,10 +84,10 @@ describe('SendMessage', () => {
         message: 'any_message',
       },
     };
-    sut.handle(httpRequest);
+    await sut.handle(httpRequest);
     expect(isValidSpy).toHaveBeenCalledWith('any_message');
   });
-  test('Should return 500 if token validator throws', () => {
+  test('Should return 500 if token validator throws', async () => {
     const { sut, tokenValidatorStub } = makeSut();
 
     jest.spyOn(tokenValidatorStub, 'isValid').mockImplementationOnce(() => {
@@ -98,12 +99,12 @@ describe('SendMessage', () => {
         message: 'any_message',
       },
     };
-    const httpResponse = sut.handle(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
   });
-  test('Should call sendMessage with correct values', () => {
+  test('Should call sendMessage with correct values', async () => {
     const { sut, sendMessageStub } = makeSut();
     const sendSpy = jest.spyOn(sendMessageStub, 'send');
     const httpRequest = {
@@ -111,16 +112,16 @@ describe('SendMessage', () => {
         message: 'any_message',
       },
     };
-    sut.handle(httpRequest);
+    await sut.handle(httpRequest);
     expect(sendSpy).toHaveBeenCalledWith({
       message: 'any_message',
     });
   });
-  test('Should return 500 if sendMessage throws', () => {
+  test('Should return 500 if sendMessage throws', async () => {
     const { sut, sendMessageStub } = makeSut();
 
-    jest.spyOn(sendMessageStub, 'send').mockImplementationOnce(() => {
-      throw new Error();
+    jest.spyOn(sendMessageStub, 'send').mockImplementationOnce(async () => {
+      return new Promise((_, reject) => reject(new Error()));
     });
 
     const httpRequest = {
@@ -128,12 +129,12 @@ describe('SendMessage', () => {
         message: 'any_message',
       },
     };
-    const httpResponse = sut.handle(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new ServerError());
   });
-  test('Should return 200 if valid data is provided', () => {
+  test('Should return 200 if valid data is provided', async () => {
     const { sut } = makeSut();
 
     const httpRequest = {
@@ -141,7 +142,7 @@ describe('SendMessage', () => {
         message: 'valid_token',
       },
     };
-    const httpResponse = sut.handle(httpRequest);
+    const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(200);
     expect(httpResponse.body).toEqual({

@@ -1,4 +1,4 @@
-import { badRequest, serverError } from '../../helpers/http-helper';
+import { badRequest, serverError, ok } from '../../helpers/http-helper';
 import {
   TokenValidator,
   Controller,
@@ -17,7 +17,7 @@ export class SendMessageController implements Controller {
     this.sendMessageStub = sendMessageStub;
   }
 
-  handle(httpRequest: HttpRequest): HttpResponse {
+  async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       if (!httpRequest.body.message) {
         return badRequest(new MissingParamError('message'));
@@ -29,13 +29,10 @@ export class SendMessageController implements Controller {
       if (!isValidToken) {
         return badRequest(new InvalidToken('token'));
       }
-      const messageResponse = this.sendMessageStub.send({
+      const messageResponse = await this.sendMessageStub.send({
         message: httpRequest.body.message,
       });
-      return {
-        statusCode: 200,
-        body: messageResponse,
-      };
+      return ok(messageResponse);
     } catch (error) {
       return serverError();
     }

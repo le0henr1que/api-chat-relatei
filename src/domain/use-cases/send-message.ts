@@ -5,5 +5,5 @@ export interface SendMessageModel {
 }
 
 export interface SendMessage {
-  send(message: SendMessageModel): MessageModel;
+  send(message: SendMessageModel): Promise<MessageModel>;
 }
