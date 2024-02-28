@@ -29,7 +29,13 @@ export class SendMessageController implements Controller {
       if (!isValidToken) {
         return badRequest(new InvalidToken('token'));
       }
-      this.sendMessageStub.send({ message: httpRequest.body.message });
+      const messageResponse = this.sendMessageStub.send({
+        message: httpRequest.body.message,
+      });
+      return {
+        statusCode: 200,
+        body: messageResponse,
+      };
     } catch (error) {
       return serverError();
     }
