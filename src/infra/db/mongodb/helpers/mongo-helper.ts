@@ -1,3 +1,4 @@
+import { get } from 'http';
 import { MongoClient } from 'mongodb';
 
 export const MongoHelper = {
@@ -6,9 +7,14 @@ export const MongoHelper = {
 
   async connect(uri: string): Promise<void> {
     this.uri = uri;
-    this.client = await MongoClient.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    this.client = await MongoClient.connect(uri);
+  },
+  async disconnect(): Promise<void> {
+    await this.client.close();
+    this.client = null;
+  },
+
+  getCollection(name: string) {
+    return this.client.db().collection(name);
   },
 };
