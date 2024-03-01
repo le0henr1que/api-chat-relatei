@@ -29,7 +29,7 @@ const makeSendMessageStub = (): SendMessage => {
       const fakeMessage: UseCaseMessageModel = {
         message: 'valid_message',
         context_id: 'valid_id',
-        type: 'sent',
+        author: 'sent',
       };
       return new Promise((resolve) => resolve(fakeMessage));
     }
@@ -152,7 +152,7 @@ describe('SendMessage', () => {
     expect(httpResponse.body).toEqual({
       message: 'valid_message',
       context_id: 'valid_id',
-      type: 'sent',
+      author: 'sent',
     });
   });
 });

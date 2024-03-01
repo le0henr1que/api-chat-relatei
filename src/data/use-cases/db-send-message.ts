@@ -41,7 +41,7 @@ export class DbSendMessage implements SendMessage {
     return {
       context_id: generatedContextId,
       message: getContext[0].message,
-      type: 'received',
+      author: 'gpt-3',
     };
   }
 }

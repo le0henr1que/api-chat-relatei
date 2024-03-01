@@ -110,10 +110,10 @@ describe('DbSendMessage', () => {
     jest
       .spyOn(sut, 'send')
       .mockImplementationOnce(() =>
-        Promise.resolve({ ...messageData, type: 'received' }),
+        Promise.resolve({ ...messageData, author: 'received' }),
       );
 
     const message = await sut.send(messageData);
-    expect(message).toEqual({ ...messageData, type: 'received' });
+    expect(message).toEqual({ ...messageData, author: 'received' });
   });
 });

@@ -7,5 +7,5 @@ export interface MessageModel {
 export interface UseCaseMessageModel {
   context_id: string | null;
   message: string;
-  type: 'sent' | 'received';
+  author: string;
 }
