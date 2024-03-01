@@ -10,11 +10,11 @@ import { InvalidToken, MissingParamError } from '../../errors';
 
 export class SendMessageController implements Controller {
   private readonly tokenValidator: TokenValidator;
-  private readonly sendMessageStub: SendMessage;
+  private readonly sendMessage: SendMessage;
 
-  constructor(tokenValidator: TokenValidator, sendMessageStub: SendMessage) {
+  constructor(tokenValidator: TokenValidator, sendMessage: SendMessage) {
     this.tokenValidator = tokenValidator;
-    this.sendMessageStub = sendMessageStub;
+    this.sendMessage = sendMessage;
   }
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
@@ -29,7 +29,7 @@ export class SendMessageController implements Controller {
       if (!isValidToken) {
         return badRequest(new InvalidToken('token'));
       }
-      const messageResponse = await this.sendMessageStub.send({
+      const messageResponse = await this.sendMessage.send({
         message: httpRequest.body.message,
       });
       return ok(messageResponse);
