@@ -30,10 +30,12 @@ export class SendMessageController implements Controller {
         return badRequest(new InvalidToken('token'));
       }
       const messageResponse = await this.sendMessage.send({
+        context_id: httpRequest.body.context_id,
         message: httpRequest.body.message,
       });
       return ok(messageResponse);
     } catch (error) {
+      console.log(error);
       return serverError();
     }
   }

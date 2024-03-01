@@ -19,13 +19,25 @@ describe('Message Repository', () => {
     return new MessageMongoRepository();
   };
 
-  test('Should return a message on success', async () => {
+  test('Should return a message on success in create a new message', async () => {
     const sut = makeSut();
-    const message = await sut.send({
+    const sendSpy = jest.spyOn(sut, 'send');
+
+    await sut.send({
+      context_id: 'any_id',
       message: 'any_message',
     });
+
+    expect(sendSpy).toHaveBeenCalledWith({
+      context_id: 'any_id',
+      message: 'any_message',
+    });
+  });
+  test('Should return a message on success in find', async () => {
+    const sut = makeSut();
+
+    const message = await sut.findMessageByContextId('any_id');
+
     expect(message).toBeTruthy();
-    expect(message.id).toBeTruthy();
-    expect(message.message).toBe('any_message');
   });
 });

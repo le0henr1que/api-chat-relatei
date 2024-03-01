@@ -17,6 +17,12 @@ describe('Message routes', () => {
   });
 
   test('Should return an message on success', async () => {
-    await request(app).get('/v1/messages').expect(200);
+    await request(app)
+      .post('/v1/messages')
+      .send({
+        message: 'Olá, mundo!',
+        context_id: 'any_id',
+      })
+      .expect(200);
   });
 });

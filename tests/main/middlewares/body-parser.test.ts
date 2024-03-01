@@ -8,7 +8,7 @@ describe('Body Parser Middleware', () => {
     });
     await request(app)
       .post('/test_body_parser')
-      .send({ message: 'valid_message' })
-      .expect({ message: 'valid_message' });
+      .send({ message: 'valid_message', context_id: 'valid_id' })
+      .expect({ message: 'valid_message', context_id: 'valid_id' });
   });
 });

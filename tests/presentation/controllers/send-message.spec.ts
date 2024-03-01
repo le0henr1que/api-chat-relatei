@@ -4,6 +4,7 @@ import {
   MessageModel,
   SendMessageModel,
   SendMessage,
+  UseCaseMessageModel,
 } from '../controllers/send-message/send-message-protocols';
 import {
   ServerError,
@@ -24,9 +25,11 @@ const makeTokenValidator = (): TokenValidator => {
 
 const makeSendMessageStub = (): SendMessage => {
   class SendMessageStub implements SendMessage {
-    async send(message: SendMessageModel): Promise<MessageModel> {
-      const fakeMessage = {
+    async send(message: SendMessageModel): Promise<UseCaseMessageModel> {
+      const fakeMessage: UseCaseMessageModel = {
         message: 'valid_message',
+        context_id: 'valid_id',
+        type: 'sent',
       };
       return new Promise((resolve) => resolve(fakeMessage));
     }
@@ -140,6 +143,7 @@ describe('SendMessage', () => {
     const httpRequest = {
       body: {
         message: 'valid_token',
+        context_id: 'valid_id',
       },
     };
     const httpResponse = await sut.handle(httpRequest);
@@ -147,6 +151,8 @@ describe('SendMessage', () => {
     expect(httpResponse.statusCode).toBe(200);
     expect(httpResponse.body).toEqual({
       message: 'valid_message',
+      context_id: 'valid_id',
+      type: 'sent',
     });
   });
 });

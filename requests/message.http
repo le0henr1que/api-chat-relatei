@@ -1,1 +1,7 @@
-GET http://localhost:5050/v1/messages
+POST http://localhost:5050/v1/messages
+Content-Type: application/json
+
+{
+  "message": "Hello, World!",
+  "context_id": "8310a79c-2ca2-4ad6-b603-750c4a23849d"
+}

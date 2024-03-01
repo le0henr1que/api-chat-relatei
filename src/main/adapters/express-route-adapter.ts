@@ -2,6 +2,7 @@ import { Controller } from '@/presentation/protocols';
 import { RequestHandler } from 'express';
 
 export const adapterRoute = (controller: Controller): RequestHandler => {
+  console.log('ENTROU NO ROUTE ADAPTER');
   return async (req, res) => {
     const httpRequest = {
       body: req.body,

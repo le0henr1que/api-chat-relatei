@@ -1,5 +1,11 @@
 export interface MessageModel {
   //TODO: alterar id para ser retorno padrao
-  id?: string;
+  context_id: string | null;
   message: string;
+}
+
+export interface UseCaseMessageModel {
+  context_id: string | null;
+  message: string;
+  type: 'sent' | 'received';
 }

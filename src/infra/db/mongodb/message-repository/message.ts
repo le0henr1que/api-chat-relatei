@@ -4,20 +4,17 @@ import { SendMessageModel } from '@/domain/use-cases/send-message';
 import { MongoHelper } from '../helpers/mongo-helper';
 
 export class MessageMongoRepository implements SendMessageRepository {
-  async send({ message }: SendMessageModel): Promise<MessageModel> {
+  async findMessageByContextId(context_id: string): Promise<MessageModel[]> {
     const messageCollection = MongoHelper.getCollection('messages');
-    const result = await messageCollection.insertOne({ message });
+    const allMessageByContext = await messageCollection
+      .find({ context_id })
+      .toArray();
 
-    // TODO: ajustar isso para que o teste passe
-    return {
-      id: result.insertedId,
-      message,
-    };
-    //TODO: mongo db alterou forma de retorno, refatorar e ajustar isso
-    // console.log(`result`, result);
-    // const messageResult = result.ops[0];
-    // const { _id, ...messageWithoutId } = messageResult;
-    // console.log(Object.assign(messageWithoutId, { id: _id }));
-    // return Object.assign(messageWithoutId, { id: _id });
+    return allMessageByContext;
+  }
+
+  async send({ message, context_id }: SendMessageModel): Promise<void> {
+    const messageCollection = MongoHelper.getCollection('messages');
+    await messageCollection.insertOne({ message, context_id });
   }
 }
