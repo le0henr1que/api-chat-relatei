@@ -11,8 +11,6 @@ import {
   MissingParamError,
   InvalidToken,
 } from '../../../src/presentation/errors';
-import { response } from 'express';
-import { resolve } from 'path';
 
 const makeTokenValidator = (): TokenValidator => {
   class TokenValidatorStub implements TokenValidator {
@@ -29,7 +27,7 @@ const makeSendMessageStub = (): SendMessage => {
       const fakeMessage: UseCaseMessageModel = {
         message: 'valid_message',
         context_id: 'valid_id',
-        author: 'sent',
+        author: 'user',
       };
       return new Promise((resolve) => resolve(fakeMessage));
     }
@@ -113,11 +111,14 @@ describe('SendMessage', () => {
     const httpRequest = {
       body: {
         message: 'any_message',
+        context_id: 'any_id',
       },
     };
     await sut.handle(httpRequest);
     expect(sendSpy).toHaveBeenCalledWith({
+      author: 'user',
       message: 'any_message',
+      context_id: 'any_id',
     });
   });
   test('Should return 500 if sendMessage throws', async () => {
@@ -152,7 +153,7 @@ describe('SendMessage', () => {
     expect(httpResponse.body).toEqual({
       message: 'valid_message',
       context_id: 'valid_id',
-      author: 'sent',
+      author: 'user',
     });
   });
 });

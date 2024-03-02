@@ -13,7 +13,7 @@ export class MessageMongoRepository implements SendMessageRepository {
     return allMessageByContext;
   }
 
-  async send({ message, context_id }: SendMessageModel): Promise<void> {
+  async send({ message, context_id, author }: SendMessageModel): Promise<void> {
     const messageCollection = MongoHelper.getCollection('messages');
     await messageCollection.insertOne({ message, context_id });
   }

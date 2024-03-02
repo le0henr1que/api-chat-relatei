@@ -26,11 +26,13 @@ describe('Message Repository', () => {
     await sut.send({
       context_id: 'any_id',
       message: 'any_message',
+      author: 'any_author',
     });
 
     expect(sendSpy).toHaveBeenCalledWith({
       context_id: 'any_id',
       message: 'any_message',
+      author: 'any_author',
     });
   });
   test('Should return a message on success in find', async () => {

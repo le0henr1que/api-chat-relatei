@@ -32,6 +32,7 @@ export class SendMessageController implements Controller {
       const messageResponse = await this.sendMessage.send({
         context_id: httpRequest.body.context_id,
         message: httpRequest.body.message,
+        author: 'user',
       });
       return ok(messageResponse);
     } catch (error) {

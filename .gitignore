@@ -2,3 +2,4 @@
 .env.development
 /dist
 /coverage
+/.env
