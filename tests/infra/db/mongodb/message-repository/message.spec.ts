@@ -7,7 +7,7 @@ describe('Message Repository', () => {
   });
 
   beforeEach(async () => {
-    const messageCollection = MongoHelper.getCollection('messages');
+    const messageCollection = await MongoHelper.getCollection('messages');
     await messageCollection.deleteMany({});
   });
 

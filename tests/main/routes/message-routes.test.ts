@@ -8,7 +8,7 @@ describe('Message routes', () => {
   });
 
   beforeEach(async () => {
-    const messageCollection = MongoHelper.getCollection('messages');
+    const messageCollection = await MongoHelper.getCollection('messages');
     await messageCollection.deleteMany({});
   });
 
@@ -21,7 +21,6 @@ describe('Message routes', () => {
       .post('/v1/messages')
       .send({
         message: 'Olá, mundo!',
-        context_id: 'any_id',
       })
       .expect(200);
   });

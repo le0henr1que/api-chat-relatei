@@ -103,7 +103,7 @@ describe('SendMessage', () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
-    expect(httpResponse.body).toEqual(new ServerError());
+    expect(httpResponse.body).toEqual(new ServerError('any_stack'));
   });
   test('Should call sendMessage with correct values', async () => {
     const { sut, sendMessageStub } = makeSut();
@@ -136,7 +136,7 @@ describe('SendMessage', () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(500);
-    expect(httpResponse.body).toEqual(new ServerError());
+    expect(httpResponse.body).toEqual(new ServerError('any_stack'));
   });
   test('Should return 200 if valid data is provided', async () => {
     const { sut } = makeSut();

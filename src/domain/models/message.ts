@@ -2,6 +2,7 @@ export interface MessageModel {
   //TODO: alterar id para ser retorno padrao
   context_id: string | null;
   message: string;
+  author: string;
 }
 
 export interface UseCaseMessageModel {

@@ -37,7 +37,7 @@ export class SendMessageController implements Controller {
       return ok(messageResponse);
     } catch (error) {
       console.log(error);
-      return serverError();
+      return serverError(error);
     }
   }
 }

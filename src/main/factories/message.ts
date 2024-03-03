@@ -1,15 +1,17 @@
 import { ContextIdAdapter } from '../../infra/context-id/context-id-adapter';
 import { DbSendMessage } from '../../data/use-cases/db-send-message';
-import { BcryptAdapter } from '../../infra/criptography/bcrypt-adapter';
+import { CryptAdapter } from '../../infra/criptography/cypto-adapter';
 import { MessageMongoRepository } from '../../infra/db/mongodb/message-repository/message';
 import { TokenValidators } from '../../infra/validators/token-validator-adapter';
 import { SendMessageController } from '../../presentation/controllers/send-message/send-message';
 import { AiAdapter } from '../../infra/ai/open-api/open-api-adapter';
+import { Controller } from '@/presentation/protocols';
+import { LogControllerDecorator } from '../decorators/log';
 
-export const makeSendMessageController = (): SendMessageController => {
-  const salt = 12;
+export const makeSendMessageController = (): Controller => {
+  const salt = 16;
   const tokenValidator = new TokenValidators();
-  const bcrypterAdapter = new BcryptAdapter(salt);
+  const bcrypterAdapter = new CryptAdapter(salt);
   const contextIdAdapter = new ContextIdAdapter();
   const aiAdapter = new AiAdapter();
   const messageMongoRepository = new MessageMongoRepository();
@@ -19,5 +21,9 @@ export const makeSendMessageController = (): SendMessageController => {
     contextIdAdapter,
     aiAdapter,
   );
-  return new SendMessageController(tokenValidator, sendMessage);
+  const sendMessageController = new SendMessageController(
+    tokenValidator,
+    sendMessage,
+  );
+  return new LogControllerDecorator(sendMessageController);
 };

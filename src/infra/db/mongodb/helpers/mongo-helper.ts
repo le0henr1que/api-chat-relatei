@@ -1,5 +1,5 @@
 import { get } from 'http';
-import { MongoClient } from 'mongodb';
+import { Collection, MongoClient } from 'mongodb';
 
 export const MongoHelper = {
   client: null as MongoClient,
@@ -14,7 +14,10 @@ export const MongoHelper = {
     this.client = null;
   },
 
-  getCollection(name: string) {
+  async getCollection(name: string): Promise<Collection> {
+    if (!this.client?.topology?.isConnected()) {
+      await this.connect(this.uri);
+    }
     return this.client.db().collection(name);
   },
 };
