@@ -7,11 +7,17 @@ import { SendMessageController } from '../../presentation/controllers/send-messa
 import { AiAdapter } from '../../infra/ai/open-api/open-api-adapter';
 import { Controller } from '@/presentation/protocols';
 import { LogControllerDecorator } from '../decorators/log';
+import fs from 'fs';
+import { LogMongoRepository } from '../../infra/db/mongodb/log-repository/log';
 
 export const makeSendMessageController = (): Controller => {
-  const salt = 16;
+  const publicKey = fs.readFileSync('./src/infra/keys/public-key.pem', 'utf8');
+  const privateKey = fs.readFileSync(
+    './src/infra/keys/private-key.pem',
+    'utf8',
+  );
   const tokenValidator = new TokenValidators();
-  const bcrypterAdapter = new CryptAdapter(salt);
+  const bcrypterAdapter = new CryptAdapter(publicKey, privateKey);
   const contextIdAdapter = new ContextIdAdapter();
   const aiAdapter = new AiAdapter();
   const messageMongoRepository = new MessageMongoRepository();
@@ -25,5 +31,6 @@ export const makeSendMessageController = (): Controller => {
     tokenValidator,
     sendMessage,
   );
-  return new LogControllerDecorator(sendMessageController);
+  const logErrorRepository = new LogMongoRepository();
+  return new LogControllerDecorator(sendMessageController, logErrorRepository);
 };

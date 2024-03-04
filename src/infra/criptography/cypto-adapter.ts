@@ -1,33 +1,24 @@
 import { Encrypter } from '@/data/protocols/encripter';
-import crypto, { scryptSync } from 'crypto';
+import forge from 'node-forge';
 
 export class CryptAdapter implements Encrypter {
-  private readonly salt: number;
-  private readonly algorithm: string;
+  private publicKey: forge.pki.rsa.PublicKey;
+  private privateKey: forge.pki.rsa.PrivateKey;
 
-  constructor(salt: number) {
-    this.salt = salt;
-    this.algorithm = 'aes-256-cbc';
+  constructor(publicKeyPem: string, privateKeyPem: string) {
+    this.publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+    this.privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
   }
 
   async encrypt(value: string): Promise<string> {
-    // const key = 'uma-chave-secreta';
-    // const iv = 'um-vetor-de-inicialização';
-
-    // const cipher = crypto.createCipheriv(this.algorithm, key, iv);
-    // let encryptedData = cipher.update(value, 'utf8', 'hex');
-    // console.log(encryptedData);
-
-    // return (encryptedData += cipher.final('hex'));
-    return value;
+    const encrypted = this.publicKey.encrypt(value, 'RSA-OAEP');
+    return forge.util.encode64(encrypted);
   }
-  async decrypt(value: string): Promise<string> {
-    // const key = 'uma-chave-secreta';
-    // const iv = 'um-vetor-de-inicialização';
-    // const decipher = crypto.createDecipheriv(this.algorithm, key, iv);
-    // let decryptedData = decipher.update(value, 'hex', 'utf8');
-    // console.log(decryptedData);
-    // return (decryptedData += decipher.final('utf8'));
-    return value;
+  async decrypt(encryptedText: string): Promise<string> {
+    const decrypted = this.privateKey.decrypt(
+      forge.util.decode64(encryptedText),
+      'RSA-OAEP',
+    );
+    return decrypted;
   }
 }

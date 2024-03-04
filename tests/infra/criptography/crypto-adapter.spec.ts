@@ -1,54 +1,54 @@
-// import crypto from 'crypto';
-// import { CryptAdapter } from '@/infra/criptography/cypto-adapter';
+import { CryptAdapter } from '../../../src/infra/criptography/cypto-adapter';
+import fs from 'fs';
+import forge from 'node-forge';
 
-// jest.mock('crypto', () => ({
-//   createDecipheriv: jest.fn().mockImplementation(() => ({
-//     update: jest.fn().mockReturnValue('decrypted_part'),
-//     final: jest.fn().mockReturnValue('decrypted_final'),
-//   })),
-//   createCipheriv: jest.fn().mockImplementation(() => ({
-//     update: jest.fn().mockReturnValue('decrypted_part'),
-//     final: jest.fn().mockReturnValue('decrypted_final'),
-//   })),
-
-//   async createSecretKey(): Promise<string> {
-//     return new Promise((resolve) => resolve('hash'));
-//   },
-//   async randomBytes(): Promise<string> {
-//     return new Promise((resolve) => resolve('hash'));
-//   },
-// }));
-
-// const salt = 16;
-// const criptographyType = 'aes-256-cbc';
-// const makeSut = (): CryptAdapter => {
-//   return new CryptAdapter(salt);
-// };
+jest.mock('node-forge', () => ({
+  pki: {
+    publicKeyFromPem: jest.fn().mockReturnValue({
+      encrypt: jest.fn().mockReturnValue('encrypted'),
+    }),
+    privateKeyFromPem: jest.fn().mockReturnValue({
+      decrypt: jest.fn().mockReturnValue('decrypted'),
+    }),
+  },
+  util: {
+    encode64: jest.fn().mockReturnValue('encoded'),
+    decode64: jest.fn().mockReturnValue('decoded'),
+  },
+}));
+const publicKey = fs.readFileSync('./tests/infra/keys/public-key.pem', 'utf8');
+const privateKey = fs.readFileSync(
+  './tests/infra/keys/private-key.pem',
+  'utf8',
+);
+const makeSut = (): CryptAdapter => {
+  return new CryptAdapter(publicKey, privateKey);
+};
 
 describe('CryptAdapter', () => {
-  test('Should call bcrypt with correct values', async () => {
-    expect(2 + 2).toEqual(4);
+  test('Should call publicKeyFromPem crypted publickkey with correct values', async () => {
+    const sut = makeSut();
+    const hashSpy = jest.spyOn(forge.pki, 'publicKeyFromPem');
+    await sut.encrypt('any_value');
+    expect(hashSpy).toHaveBeenCalledWith(publicKey);
   });
-  // test('Should call crypted with correct values', async () => {
-  //   const sut = makeSut();
-  //   const hashSpy = jest.spyOn(crypto, 'createCipheriv');
-  //   await sut.encrypt('any_value');
-  //   expect(hashSpy).toHaveBeenCalledWith(criptographyType, 'hash', 'hash');
-  // });
-  // test('Should crypted a text on success', async () => {
-  //   const sut = makeSut();
-  //   const hash = await sut.encrypt('any_value');
-  //   expect(hash).toBe('decrypted_partdecrypted_final');
-  // });
-  // test('Should call decrypted with correct values', async () => {
-  //   const sut = makeSut();
-  //   const hashSpy = jest.spyOn(crypto, 'createDecipheriv');
-  //   await sut.decrypt('any_value');
-  //   expect(hashSpy).toHaveBeenCalledWith(criptographyType, 'hash', 'hash');
-  // });
-  // test('Should decrypted a hash on success', async () => {
-  //   const sut = makeSut();
-  //   const hash = await sut.decrypt('any_value');
-  //   expect(hash).toBe('decrypted_partdecrypted_final');
-  // });
+  test('Should call privateKeyFromPem crypted private key with correct values', async () => {
+    const sut = makeSut();
+    const hashSpy = jest.spyOn(forge.pki, 'privateKeyFromPem');
+    await sut.encrypt('any_value');
+    expect(hashSpy).toHaveBeenCalledWith(privateKey);
+  });
+
+  test('Should call decrypt and return correct values', async () => {
+    const sut = makeSut();
+    jest.spyOn(forge.util, 'encode64');
+    const decrypt = await sut.decrypt('any_value');
+    expect(decrypt).toBe('decrypted');
+  });
+  test('Should call decrypt and return correct values', async () => {
+    const sut = makeSut();
+    jest.spyOn(forge.util, 'encode64');
+    const decrypt = await sut.encrypt('any_value');
+    expect(decrypt).toBe('encoded');
+  });
 });
