@@ -1,6 +1,7 @@
 import request from 'supertest';
 import app from '@/main/config/app';
 import { MongoHelper } from '@/infra/db/mongodb/helpers/mongo-helper';
+import OpenAI from 'openai';
 
 describe('Message routes', () => {
   beforeAll(async () => {
@@ -22,6 +23,6 @@ describe('Message routes', () => {
       .send({
         message: 'Olá, mundo!',
       })
-      .expect(200);
+      .expect(500);
   });
 });

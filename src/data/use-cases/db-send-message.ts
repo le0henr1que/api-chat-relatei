@@ -1,4 +1,4 @@
-import { Stream } from 'openai/streaming';
+import { captureRejectionSymbol } from 'events';
 import {
   MessageModel,
   SendMessage,
@@ -9,7 +9,7 @@ import {
   ContextId,
   ArtificialIntelligence,
 } from './db-send-message-protocols';
-import { ChatCompletion, ChatCompletionChunk } from 'openai/resources';
+import fs from 'fs';
 
 export class DbSendMessage implements SendMessage {
   private readonly encrypter: Encrypter;
@@ -36,8 +36,6 @@ export class DbSendMessage implements SendMessage {
   }: SendMessageModel): Promise<UseCaseMessageModel> {
     const hashedMessage = await this.encrypter.encrypt(message);
     const generatedContextId = await this.contextId.generate(context_id);
-    // console.log(hashedMessage);
-    // console.log('context', generatedContextId);
 
     await this.sendMessageRepository.send({
       context_id: generatedContextId,
@@ -48,23 +46,53 @@ export class DbSendMessage implements SendMessage {
     const getContext =
       await this.sendMessageRepository.findMessageByContextId(context_id);
 
-    console.log(getContext);
+    const messageFormated = await Promise.all(
+      getContext.map(async (element) => {
+        if (context_id && element.author === 'user') {
+          const decryptedMessage = await this.encrypter.decrypt(
+            element.message,
+          );
+          return `Author: ${element.author} - Message: ${decryptedMessage} `;
+        }
+        if (context_id && element.author !== 'user') {
+          return `Author: ${element.author} - Message: ${element.message} `;
+        }
+        if (!context_id) return `Author: ${author} - Message: ${message} `;
+      }),
+    );
 
-    //   const responseMessage = await this.ai.generateMessage({
-    //     model: 'gpt-3.5-turbo-16k',
-    //     temperature: 0.5,
-    //     messages: [
-    //       {
-    //         role: 'user',
-    //         content: createContext,
-    //       },
-    //     ],
-    //     stream: false,
-    //   });
+    const messageInString = messageFormated.join(' ');
+    console.log(messageInString);
+    const promptAi = fs.readFileSync('./src/infra/prompt/prompt.txt', 'utf8');
+
+    const mergedMessage = promptAi.replace(
+      /{{{messageContext}}}/g,
+      messageInString,
+    );
+
+    console.log(mergedMessage);
+
+    const responseMessage = await this.ai.generateMessage({
+      model: 'gpt-3.5-turbo-16k',
+      temperature: 0.5,
+      messages: [
+        {
+          role: 'user',
+          content: mergedMessage,
+        },
+      ],
+      stream: false,
+    });
+
+    await this.sendMessageRepository.send({
+      context_id: generatedContextId,
+      message: (responseMessage as any).choices[0].message.content,
+      author: 'gpt',
+    });
 
     return {
-      context_id: 'generatedContextId',
-      message: 'responseMessage',
+      context_id: generatedContextId,
+      message: responseMessage,
       author: 'gpt-3',
     };
   }
